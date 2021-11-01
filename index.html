@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Las Vegas ZIPS</title>
+  <meta name="viewport" content="initial-scale=1.0">
+  <meta charset="utf-8">
+
+  <link href="http://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      background: #cae8e5;
+      font-family: Roboto, sans-serif;
+    }
+    header, footer {
+      background: #20252A;
+      color: white;
+      padding: 18px 0;
+      box-shadow: 0px 1px 3px #20252A;
+    }
+    .container {
+      width: 960px;
+      margin: 18px auto;
+    }
+    h1 {
+      width: 960px;
+      margin: 0 auto;
+      font-size: 2em;
+    }
+    a {
+      color: white;
+    }
+    ul li {
+      margin: 0 0 8px 0;
+    }
+    #map {
+      width: 700px;
+      height: 700px;
+    }
+    /* .outline {
+      stroke: #40767a;
+    } */
+    /* .hover {
+      fill: #3f8c84;
+      stroke-width: 3;
+    } */
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Las Vegas Zip Codes</h1>
+  </header>
+  <div class="container">
+    <div id="map"></div>
+  </div>
+  <footer>
+    <div class="container">
+      <ul>
+        <li>Map authored by <a href="https://courtneysimonse.github.io/" target="_blank">Courtney Simonse</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+  <!-- <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.js"></script> -->
+  <script>
+      // JS code here
+      // synchronous calls to data files
+      var zipsGeoJSON= d3.json("data/zips_lasvegas.geojson"),
+        highwaysGeoJSON = d3.json("data/highways_lasvegas.geojson"),
+        labelsGeoJSON = d3.json("data/interstate_labels.geojson")
+
+      // use promise to call all data files, then send data to callback
+      Promise.all([zipsGeoJSON, highwaysGeoJSON, labelsGeoJSON]).then(drawMap, error)
+
+      // function fired if there is an error
+      function error(error) {
+        console.log(error)
+      }
+
+      // // define color generator
+      const color = d3.scaleOrdinal(d3.schemeGnBu[8].slice(2,5));
+
+      // accepts the data as a parameter statesData
+      function drawMap(data) {
+
+        // data is array of our two datasets
+        var zipsData = data[0],
+          highwaysData = data[1],
+          labelsData = data[2]
+
+        // define width and height of our SVG
+        // var width = 800,
+        //        height = 700
+
+        const margin = {
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10
+        };
+
+        // Dimensions: 700 x 700
+        // used for the initial rendering
+        // width to height proportion
+        // its preserved as the chart is resized
+        const width = 700 - margin.left - margin.right;
+        const height = 700 - margin.top - margin.bottom;
+
+        // select the map element
+        var svg = d3.select("#map")
+          .append("svg")  // append a new SVG element
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .call(responsivefy) // Call responsivefy to make the chart responsive
+            .append('g')
+            .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+          // .attr("width", width) // give the SVS element a width attribute and value
+          // .attr("height", height) // same for the height
+          // .attr("viewBox", `0 0 700 700`)
+
+        const projection = d3
+          .geoMercator()
+          .center([-115.14617, 36.12159])
+          .scale(58000)
+          .translate([width / 2, height / 2]);
+
+        // Prepare SVG path and color, import the
+        // effect from above projection.
+        const path = d3.geoPath().projection(projection);
+
+
+        // create and append a new SVG g element to the SVG
+        var zipsBoundary = svg.append("g")
+          .selectAll("path")  // select all the paths (that don't exist yet)
+          .data(zipsData.features) // use the GeoJSON data
+          .enter()  // enter the selection
+          .append("a")
+            .attr("xlink:href", function (d){
+              return "https://www.seevegashomes.com/zip/" + d.properties.zip_code;
+            })
+          .append("path")  // append new path elements for each data feature
+          .attr("d", path)  // give each path a d attribute value
+          .style("stroke", "#40767a")  // give each path a class of outline
+          .attr("fill", (d, i) => color(i))
+          .attr("stroke-width", 0.5)
+          .on("mouseover", function(d) {  // when mousing over an element
+            // d3.select(this).classed("hover", true) // select it and add a class name
+            var fillOriginal = d3.select(this).style("fill")
+            d3.select(this)
+              .style("fill", "#3f8c84")
+              .style("stroke-width", 3)
+              .attr("fillOriginal", fillOriginal)
+          })
+          .on("mouseout", function() { // when mousing out of an element
+            var fillOriginal = d3.select(this).attr("fillOriginal")
+            d3.select(this)
+              .style("fill", fillOriginal)
+              .style("stroke-width", 1)// remove the highlight
+          })
+
+        var highways = svg.append("g")
+          .selectAll("path")  // select all the paths (that don't exist yet)
+          .data(highwaysData.features) // use the GeoJSON data
+          .enter()  // enter the selection
+          .append("path")  // append new path elements for each data feature
+          .attr("d", path)  // give each path a d attribute value
+          .style("fill", "none")
+          .style("stroke", "darkgray")
+          .style("stroke-width", 3)
+
+        var zipsLabels = svg.append("g")
+          .selectAll("labels")
+          .data(zipsData.features)
+          .enter()
+          .append("text")
+            .style("pointer-events","none")
+            .attr("x", function(d){return path.centroid(d)[0]})
+            .attr("y", function(d){return path.centroid(d)[1]})
+            .text(function(d){ return d.properties.zip_code})
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "central")
+            .style("font-size", 5)
+              .style("fill", "whitesmoke")
+              .style("text-shadow", "1px 1px 2px gray")
+
+          // var highwayLabels = svg.append("g")
+          //   .selectAll("labels")
+          //   .data(highwaysData.features)
+          //   .enter()
+          //   .append("text")
+          //     .style("pointer-events","none")
+          //     .attr("x", function(d){return path.centroid(d)[0]})
+          //     .attr("y", function(d){return path.centroid(d)[1]})
+          //     .text(function(d){ return d.properties.name})
+          //     .attr("text-anchor", "middle")
+          //     .attr("alignment-baseline", "central")
+          //     .style("font-size", 5)
+          //       .style("fill", "whitesmoke")
+          //       .style("text-shadow", "1px 1px 2px gray")
+
+          // var highwayLabels = svg.append("g")
+          //   .selectAll("labels")
+          //   .data(labelsData.features)
+          //   .enter()
+          //   .append("text")
+          //     .style("pointer-events","none")
+          //     .attr("x", function(d){return path.centroid(d)[0]})
+          //     .attr("y", function(d){return path.centroid(d)[1]})
+          //     .text(function(d){ return d.properties.name})
+          //     .attr("text-anchor", "middle")
+          //     .attr("alignment-baseline", "central")
+          //     .style("font-size", 5)
+          //       .style("fill", "whitesmoke")
+          //       .style("text-shadow", "2px 2px 2px darkgray")
+
+
+      } // end drawMap
+
+      function responsivefy(svg) {
+
+            // Container is the DOM element, svg is appended.
+            // Then we measure the container and find its
+            // aspect ratio.
+            const container = d3.select(svg.node().parentNode),
+                width = parseInt(svg.style('width'), 10),
+                height = parseInt(svg.style('height'), 10),
+                aspect = width / height;
+
+            // Add viewBox attribute to set the value to initial size
+            // add preserveAspectRatio attribute to specify how to scale
+            // and call resize so that svg resizes on page load
+            svg.attr('viewBox', `0 0 ${width} ${height}`).
+            attr('preserveAspectRatio', 'xMinYMid').
+            call(resize);
+
+            d3.select(window).on('resize.' + container.attr('id'), resize);
+
+            function resize() {
+                const targetWidth = parseInt(container.style('width'));
+                svg.attr('width', targetWidth);
+                svg.attr('height', Math.round(targetWidth / aspect));
+            }
+        }
+
+  </script>
+</body>
+
+</html>
