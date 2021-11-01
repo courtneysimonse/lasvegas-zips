@@ -54,7 +54,7 @@
     <h1>Las Vegas Zip Codes</h1>
   </header>
   <div class="container">
-    <div id="map"></div>
+    <div id="map" style="background-color: whitesmoke;"></div>
   </div>
   <footer>
     <div class="container">
@@ -66,16 +66,23 @@
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-  <!-- <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.js"></script> -->
+  <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.js"></script>
   <script>
       // JS code here
       // synchronous calls to data files
+      // var zipsjson= d3.json("data/zips_lasvegas.json"),
+      //   highwaysjson = d3.json("data/highways_lasvegas.json"),
+      //   highwayLabelsGeoJSON = d3.json("data/interstate_labels.geojson"),
+      //   zipLabelsGeoJSON = d3.json("data/zips_labels.geojson")
+
       var zipsGeoJSON= d3.json("data/zips_lasvegas.geojson"),
-        highwaysGeoJSON = d3.json("data/highways_lasvegas.geojson"),
-        labelsGeoJSON = d3.json("data/interstate_labels.geojson")
+        highwaysjson = d3.json("data/highways_lasvegas.json"),
+        highwayLabelsGeoJSON = d3.json("data/interstate_labels.geojson"),
+        zipLabelsGeoJSON = d3.json("data/zips_labels.geojson")
 
       // use promise to call all data files, then send data to callback
-      Promise.all([zipsGeoJSON, highwaysGeoJSON, labelsGeoJSON]).then(drawMap, error)
+      // Promise.all([zipsjson, highwaysjson, highwayLabelsGeoJSON, zipLabelsGeoJSON]).then(drawMap, error)
+      Promise.all([zipsGeoJSON, highwaysjson, highwayLabelsGeoJSON, zipLabelsGeoJSON]).then(drawMap, error)
 
       // function fired if there is an error
       function error(error) {
@@ -83,25 +90,40 @@
       }
 
       // // define color generator
-      const color = d3.scaleOrdinal(d3.schemeGnBu[8].slice(2,5));
+      // const colorPolygons = d3.scaleOrdinal(d3.schemePaired.slice(0,4));
+      const colorPolygons = d3.scaleOrdinal(["#2e3c53","#636d7e","#979ea9"]);
+      const colorLabels = d3.scaleOrdinal(["#fbfcfc","#fbfcfc","#0b2745"])
 
       // accepts the data as a parameter statesData
       function drawMap(data) {
 
         // data is array of our two datasets
-        var zipsData = data[0],
-          highwaysData = data[1],
-          labelsData = data[2]
+        // var zipsData = data[0],
+        //   highwaysData = data[1],
+        //   highwayLabelsData = data[2],
+        //   zipsLabelData = data[3]
 
-        // define width and height of our SVG
-        // var width = 800,
-        //        height = 700
+        var zipsGeoJSON = data[0],
+          highwaysData = data[1],
+          highwayLabelsData = data[2],
+          zipsLabelData = data[3]
+        
+        // get the GeoJSON representation of the TopoJSON data
+        // var zipsGeoJSON = topojson.feature(zipsData, {
+        //   type: "GeometryCollection",
+        //   geometries: zipsData.objects.zips_lasvegas.geometries
+        // })
+
+        var highwaysGeoJSON = topojson.feature(highwaysData, {
+          type: "GeometryCollection",
+          geometries: highwaysData.objects.highways_lasvegas.geometries
+        })
 
         const margin = {
-            top: 10,
-            right: 10,
-            bottom: 10,
-            left: 10
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0
         };
 
         // Dimensions: 700 x 700
@@ -138,7 +160,7 @@
         // create and append a new SVG g element to the SVG
         var zipsBoundary = svg.append("g")
           .selectAll("path")  // select all the paths (that don't exist yet)
-          .data(zipsData.features) // use the GeoJSON data
+          .data(zipsGeoJSON.features) // use the GeoJSON data
           .enter()  // enter the selection
           .append("a")
             .attr("xlink:href", function (d){
@@ -146,37 +168,39 @@
             })
           .append("path")  // append new path elements for each data feature
           .attr("d", path)  // give each path a d attribute value
-          .style("stroke", "#40767a")  // give each path a class of outline
-          .attr("fill", (d, i) => color(i))
-          .attr("stroke-width", 0.5)
+          .style("stroke", "#ffffff")  // give each path a class of outline
+          .attr("fill", (d, i) => colorPolygons(i))
+          .attr("stroke-width", 2)
           .on("mouseover", function(d) {  // when mousing over an element
             // d3.select(this).classed("hover", true) // select it and add a class name
-            var fillOriginal = d3.select(this).style("fill")
+            // var fillOriginal = d3.select(this).style("fill")
             d3.select(this)
-              .style("fill", "#3f8c84")
-              .style("stroke-width", 3)
-              .attr("fillOriginal", fillOriginal)
+              .style("opacity", 0.3)
+              // .style("fill", "#3f8c84")
+              // .style("stroke-width", 3)
+              // .attr("fillOriginal", fillOriginal)
           })
           .on("mouseout", function() { // when mousing out of an element
-            var fillOriginal = d3.select(this).attr("fillOriginal")
+            // var fillOriginal = d3.select(this).attr("fillOriginal")
             d3.select(this)
-              .style("fill", fillOriginal)
-              .style("stroke-width", 1)// remove the highlight
+              .style("opacity", 1.0)
+              // .style("fill", fillOriginal)
+              // .style("stroke-width", 1)// remove the highlight
           })
 
         var highways = svg.append("g")
           .selectAll("path")  // select all the paths (that don't exist yet)
-          .data(highwaysData.features) // use the GeoJSON data
+          .data(highwaysGeoJSON.features) // use the GeoJSON data
           .enter()  // enter the selection
           .append("path")  // append new path elements for each data feature
           .attr("d", path)  // give each path a d attribute value
           .style("fill", "none")
-          .style("stroke", "darkgray")
+          .style("stroke", "#29c6fc")
           .style("stroke-width", 3)
 
         var zipsLabels = svg.append("g")
           .selectAll("labels")
-          .data(zipsData.features)
+          .data(zipsLabelData.features)
           .enter()
           .append("text")
             .style("pointer-events","none")
@@ -185,10 +209,25 @@
             .text(function(d){ return d.properties.zip_code})
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "central")
-            .style("font-size", 5)
-              .style("fill", "whitesmoke")
-              .style("text-shadow", "1px 1px 2px gray")
+            .style("font-size", "medium")
+              // .style("fill", "#0197b5")
+              .style("fill", (d, i) => colorLabels(i))
+              .style("font-weight", "bold")
 
+        var labelToCentroid = {};
+        zipsGeoJSON.features.forEach(element => {
+          // console.log(element);
+          
+        });
+        
+        var leaderLines = svg.append("line")          // attach a line
+          .style("stroke", "black")  // colour the line
+          .attr("x1", projection([-115.153708,36.108858])[0])     
+          .attr("y1", projection([-115.153708,36.108858])[1])      
+          .attr("x2", projection([-115.177350,36.105489])[0])     
+          .attr("y2", projection([-115.177350,36.105489])[1]);   
+
+        
           // var highwayLabels = svg.append("g")
           //   .selectAll("labels")
           //   .data(highwaysData.features)
