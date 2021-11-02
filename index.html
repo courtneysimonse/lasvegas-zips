@@ -56,6 +56,9 @@
   <div class="container">
     <div id="map" style="background-color: #c0c4cb;">
     </div>
+    <!-- <div id="i15sign-container"></div>
+    <div id="i215sign-container"></div> -->
+  </div>
   </div>
   <footer>
     <div class="container">
@@ -80,7 +83,7 @@
         highwaysjson = d3.json("data/highways_lasvegas.json"),
         highwayLabelsGeoJSON = d3.json("data/interstate_labels.geojson"),
         zipLabelsGeoJSON = d3.json("data/zips_labels.geojson"),
-        citiesGeoJSON = d3.json("data/cities.geojson")
+        citiesGeoJSON = d3.json("data/cities.geojson"),
         i15SVG = d3.svg("https://upload.wikimedia.org/wikipedia/commons/c/cd/I-15.svg")
 
       // use promise to call all data files, then send data to callback
@@ -177,6 +180,7 @@
           .style("stroke", "#ffffff")  // give each path a class of outline
           .attr("fill", (d, i) => colorPolygons(i))
           .attr("stroke-width", "2px")
+          .attr("stroke-opacity", 0.5)
           .on("mouseover", function(d) {  // when mousing over an element
             // d3.select(this).classed("hover", true) // select it and add a class name
             // var fillOriginal = d3.select(this).style("fill")
@@ -203,6 +207,35 @@
           .style("fill", "none")
           .style("stroke", "#29c6fc")
           .style("stroke-width", "3px")
+        
+        
+        var highwayLabelsBg = svg.append("g")
+        .selectAll("circle")
+        .data(highwayLabelsGeoJSON.features)
+        .enter()
+        .append("rect")
+          .style("pointer-events","none")
+          .attr("x", function(d){return path.centroid(d)[0] - 25})
+          .attr("y", function(d){return path.centroid(d)[1] - 18})
+          .attr("width", "45px")
+          .attr("height", "20px")
+            .style("fill", "whitesmoke")
+            .style("opacity", "0.8")
+
+        var highwayLabels = svg.append("g")
+          .selectAll("labels")
+          .data(highwayLabelsGeoJSON.features)
+          .enter()
+          .append("text")
+            .style("pointer-events","none")
+            .attr("x", function(d){return path.centroid(d)[0]})
+            .attr("y", function(d){return path.centroid(d)[1]})
+            .text(function(d){ return d.properties.name})
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "central")
+            .style("font-size", "large")
+              .style("fill", "red")
+              .style("text-shadow", "0px 0px 1px whitesmoke")
 
         var zipsLabels2 = svg.append("g")
           .selectAll("labels")
@@ -218,7 +251,7 @@
             .style("font-size", "medium")
               // .style("fill", "#0197b5")
               .style("fill", "#0b2745")
-              .style("font-weight", "bolder")
+              .style("font-weight", "900")
 
 
         var zipsLabels = svg.append("g")
@@ -283,10 +316,70 @@
             .style("fill", function(d){return d.properties.color})
             .style("font-weight", "bold")
 
-        // svg.node().appendChild(i15SVGData);
+        console.log(i15SVGData);
+        // Promise.all([
+        //   d3.xml("images/I-15.svg"),
+        //   d3.xml("images/I-215_(NV).svg")
+        // ])
+        // .then(([i15signSVG, i215signSVG]) => {
+        //   d3.select("#i15sign-container").node().append(i15sign.documentElement);
+        //   d3.select("#i215sign-container").node().append(i215sign.documentElement);
+        // });
 
-        var i15 = svg.append("g")
-          .selectAll("g")
+        // const i15sign = svg => svg.append('defs')
+        //   .append('pattern')
+        //   .attr('id', 'i15sign-pattern')
+        //   .attr('patternUnits', 'objectBoundingBox')
+        //   .attr('width', 10)
+        //   .attr('height', 10)
+        //   // Append svg to pattern
+        //   .append('svg')
+        //   .attr('x', 0)
+        //   .attr('y', 0)
+        //   .attr('width', 25)
+        //   .attr('height', 25)
+        //   .append(() => i15signSVG.documentElement.cloneNode(true))
+
+        //   i215sign = svg => svg.append('defs')
+        //     .append('pattern')
+        //     .attr('id', 'i215sign-pattern')
+        //     .attr('patternUnits', 'objectBoundingBox')
+        //     .attr('width', 10)
+        //     .attr('height', 10)
+        //     // Append svg to pattern
+        //     .append('svg')
+        //     .attr('class', "i215sign")
+        //     .attr('x', 0)
+        //     .attr('y', 0)
+        //     .attr('width', 20)
+        //     .attr('height', 20)
+        //     .append(() => i215signSVG.documentElement.cloneNode(true));
+        
+        //   const point = svg => svg.append("g")
+        //     .selectAll(".point")
+        //     .data(data)
+        //     .enter().append("path")
+        //     .attr("class", "point")
+        //     .attr("d", d3.symbol().size(575).type(d3.symbolSquare))
+        //     .attr("transform", d => {
+        //       return "translate(" + x(d.coordinates[0]) + "," + y(d.coordinates[1]) + ")";
+        //     })
+        //     .style('fill', function(d) {
+        //       if (d.label === "i15sign") {
+        //         return `url(${location}#i15sign-pattern)`
+        //       } else if (d.label === "i215sign") {
+        //         return `url(${location}#i215sign-pattern)`
+        //       } else {
+        //         return "gray"
+        //       };
+        //     });
+
+        // var i15 = svg.append("g")
+        //   .selectAll("g")
+        //   .data(i15SVGData)
+        //   .enter()
+        //   .append("g")
+        //     .attr("transform", 'translate(' +  projection([-115.16580349900183, 36.083802840339])[0] + ',' + projection([-115.16580349900183, 36.083802840339])[1] + '), scale(.05)')
           
         // var highwayLabels = svg.append("g")
         //   .selectAll("labels")
@@ -297,20 +390,6 @@
         //     .attr("x", function(d){return path.centroid(d)[0]})
         //     .attr("y", function(d){return path.centroid(d)[1]})
 
-        // var highwayLabels = svg.append("g")
-        //   .selectAll("labels")
-        //   .data(highwayLabelsGeoJSON.features)
-        //   .enter()
-        //   .append("text")
-        //     .style("pointer-events","none")
-        //     .attr("x", function(d){return path.centroid(d)[0]})
-        //     .attr("y", function(d){return path.centroid(d)[1]})
-        //     .text(function(d){ return d.properties.name})
-        //     .attr("text-anchor", "middle")
-        //     .attr("alignment-baseline", "central")
-        //     .style("font-size", 5)
-        //       .style("fill", "whitesmoke")
-        //       .style("text-shadow", "1px 1px 2px gray")
 
           // var highwayLabels = svg.append("g")
           //   .selectAll("labels")
