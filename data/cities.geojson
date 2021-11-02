@@ -1,1 +1,53 @@
-{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Las Vegas"},"geometry":{"type":"Point","coordinates":[-115.3150848,36.1251958]}},{"type":"Feature","properties":{"name":"Henderson"},"geometry":{"type":"Point","coordinates":[-115.1999484,36.0085959]}},{"type":"Feature","properties":{"name":"North Las Vegas"},"geometry":{"type":"Point","coordinates":[-115.1554011,36.2604765]}}]}
+{
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Las Vegas",
+          "padding_top": 5,
+          "padding_left": -5,
+          "color": "whitesmoke"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -115.14909,
+            36.16579
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Henderson",
+          "padding_top": 11,
+          "padding_left": 6,
+          "color": "whitesmoke"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -114.983333,
+            36.033333
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "North Las Vegas",
+          "padding_left": 8,
+          "padding_top": -18,
+          "color": "whitesmoke"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -115.146667,
+            36.228611
+          ]
+        }
+      }
+    ]
+  }

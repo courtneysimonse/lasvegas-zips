@@ -176,7 +176,7 @@
           .attr("d", path)  // give each path a d attribute value
           .style("stroke", "#ffffff")  // give each path a class of outline
           .attr("fill", (d, i) => colorPolygons(i))
-          .attr("stroke-width", 2)
+          .attr("stroke-width", "2px")
           .on("mouseover", function(d) {  // when mousing over an element
             // d3.select(this).classed("hover", true) // select it and add a class name
             // var fillOriginal = d3.select(this).style("fill")
@@ -204,6 +204,23 @@
           .style("stroke", "#29c6fc")
           .style("stroke-width", "3px")
 
+        var zipsLabels2 = svg.append("g")
+          .selectAll("labels")
+          .data(zipsLabelData.features)
+          .enter()
+          .append("text")
+            .style("pointer-events","none")
+            .attr("x", function(d){return path.centroid(d)[0]})
+            .attr("y", function(d){return path.centroid(d)[1]})
+            .text(function(d){ return d.properties.zip_code})
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "central")
+            .style("font-size", "medium")
+              // .style("fill", "#0197b5")
+              .style("fill", "#0b2745")
+              .style("font-weight", "bolder")
+
+
         var zipsLabels = svg.append("g")
           .selectAll("labels")
           .data(zipsLabelData.features)
@@ -219,14 +236,14 @@
               // .style("fill", "#0197b5")
               .style("fill", (d, i) => colorLabels(i))
               .style("font-weight", "bold")
-
-        var labelToCentroid = {};
-        zipsGeoJSON.features.forEach(element => {
-          // console.log(element);
-          
-        });
         
-        var leaderLines = svg.append("line")          // attach a line
+         // var labelToCentroid = {};
+        // zipsGeoJSON.features.forEach(element => {
+        //   // console.log(element);
+          
+        // });
+        
+        let leaderLines = svg.append("line")          // attach a line
           .style("stroke", "black")  // colour the line
           .attr("x1", projection([-115.153708,36.108858])[0])     
           .attr("y1", projection([-115.153708,36.108858])[1])      
@@ -236,12 +253,12 @@
 
         let plane_d = "m2,106h28l24,30h72l-44,-133h35l80,132h98c21,0 21,34 0,34l-98,0 -80,134h-35l43,-133h-71l-24,30h-28l15,-47"
         // Append group
-        var planes = svg.append("g")
+        var plane = svg.append("g")
           .attr("transform", 'translate(' +  projection([-115.16580349900183, 36.083802840339])[0] + ',' + projection([-115.16580349900183, 36.083802840339])[1] + '), scale(.05)' )
         
 
         // draw plane on each group
-        planes.append('path')
+        plane.append('path')
             .attr('d', plane_d)
             .style("fill", "red")
 
@@ -249,11 +266,28 @@
           .selectAll('path')
           .data(citiesGeoJSON.features)
           .join('path')
-          .attr('d', path);
+          .attr('d', path)
+        
+        let citiesLabels = svg.append("g")
+          .selectAll('labels')
+          .data(citiesGeoJSON.features)
+          .enter()
+          .append("text")
+            .style("pointer-events","none")
+            .attr("text-anchor", "end")
+            .attr("alignment-baseline", "bottom")
+            .style("font-size", "small")
+            .attr("x", function(d){return path.centroid(d)[0] + d.properties.padding_left})
+            .attr("y", function(d){return path.centroid(d)[1] + d.properties.padding_top})
+            .text(function(d){ return d.properties.name})
+            .style("fill", function(d){return d.properties.color})
+            .style("font-weight", "bold")
 
         // svg.node().appendChild(i15SVGData);
 
-        // var i15 = svg.select("svg");
+        var i15 = svg.append("g")
+          .selectAll("g")
+          
         // var highwayLabels = svg.append("g")
         //   .selectAll("labels")
         //   .data(highwayLabelsGeoJSON.features)
