@@ -54,6 +54,7 @@
 { "type": "Feature", "properties": { "_uid_": 83, "zip_code": "89161" }, "geometry": { "type": "Point", "coordinates": [ -115.409479, 36.08694221 ] } },
 { "type": "Feature", "properties": { "_uid_": 85, "zip_code": "89166" }, "geometry": { "type": "Point", "coordinates": [ -115.38245926, 36.32517789 ] } },
 { "type": "Feature", "properties": { "_uid_": 87, "zip_code": "89178" }, "geometry": { "type": "Point", "coordinates": [ -115.29072909, 35.97236901 ] } },
-{ "type": "Feature", "properties": { "_uid_": 88, "zip_code": "89179" }, "geometry": { "type": "Point", "coordinates": [ -115.25559306, 35.99197627 ] } }
+{ "type": "Feature", "properties": { "_uid_": 88, "zip_code": "89179" }, "geometry": { "type": "Point", "coordinates": [ -115.25559306, 35.99197627 ] } },
+{ "type": "Feature", "properties": { "_uid_": 89, "zip_code": "89183" }, "geometry": { "type": "Point", "coordinates": [ -115.157730313957458, 35.998369553947697 ] } }
 ]
 }
