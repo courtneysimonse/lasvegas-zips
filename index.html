@@ -80,11 +80,12 @@
         highwaysjson = d3.json("data/highways_lasvegas.json"),
         highwayLabelsGeoJSON = d3.json("data/interstate_labels.geojson"),
         zipLabelsGeoJSON = d3.json("data/zips_labels.geojson"),
+        citiesGeoJSON = d3.json("data/cities.geojson")
         i15SVG = d3.svg("https://upload.wikimedia.org/wikipedia/commons/c/cd/I-15.svg")
 
       // use promise to call all data files, then send data to callback
       // Promise.all([zipsjson, highwaysjson, highwayLabelsGeoJSON, zipLabelsGeoJSON]).then(drawMap, error)
-      Promise.all([zipsGeoJSON, highwaysjson, highwayLabelsGeoJSON, zipLabelsGeoJSON, i15SVG]).then(drawMap, error)
+      Promise.all([zipsGeoJSON, highwaysjson, highwayLabelsGeoJSON, zipLabelsGeoJSON, citiesGeoJSON, i15SVG]).then(drawMap, error)
 
       // function fired if there is an error
       function error(error) {
@@ -110,7 +111,8 @@
           highwaysData = data[1],
           highwayLabelsGeoJSON = data[2],
           zipsLabelData = data[3],
-          i15SVGData = data[4].getElementsByTagName("svg")[0]
+          citiesGeoJSON = data[4],
+          i15SVGData = data[5].getElementsByTagName("svg")[0]
         
         // get the GeoJSON representation of the TopoJSON data
         // var zipsGeoJSON = topojson.feature(zipsData, {
@@ -199,7 +201,7 @@
           .append("path")  // append new path elements for each data feature
           .attr("d", path)  // give each path a d attribute value
           .style("fill", "none")
-          .style("stroke", "red")
+          .style("stroke", "#29c6fc")
           .style("stroke-width", "3px")
 
         var zipsLabels = svg.append("g")
@@ -242,6 +244,12 @@
         planes.append('path')
             .attr('d', plane_d)
             .style("fill", "red")
+
+        let cities = svg.append("g")
+          .selectAll('path')
+          .data(citiesGeoJSON.features)
+          .join('path')
+          .attr('d', path);
 
         // svg.node().appendChild(i15SVGData);
 
